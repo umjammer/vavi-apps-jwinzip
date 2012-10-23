@@ -229,7 +229,7 @@ Debug.printStackTrace(e);
     // ----
 
     /**
-     * ƒƒjƒ…[ƒo[‚ğæ“¾‚µ‚Ü‚·D
+     * ãƒ¡ãƒ‹ãƒ¥ãƒ¼ãƒãƒ¼ã‚’å–å¾—ã—ã¾ã™ï¼
      */
     public JMenuBar getMenuBar() {
         JMenuBar menuBar = new JMenuBar();
@@ -258,7 +258,7 @@ Debug.printStackTrace(e);
     }
 
     /**
-     * ƒc[ƒ‹ƒo[‚ğæ“¾‚µ‚Ü‚·D
+     * ãƒ„ãƒ¼ãƒ«ãƒãƒ¼ã‚’å–å¾—ã—ã¾ã™ï¼
      */
     public JToolBar getToolBar() {
         JToolBar toolBar = new JToolBar();
@@ -277,7 +277,7 @@ Debug.printStackTrace(e);
     }
 
     /**
-     * ƒ|ƒbƒvƒAƒbƒvƒƒjƒ…[‚ğæ“¾‚µ‚Ü‚·D
+     * ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚’å–å¾—ã—ã¾ã™ï¼
      */
     public JPopupMenu getPopupMenu() {
         JPopupMenu popupMenu = new JPopupMenu();
@@ -299,8 +299,8 @@ Debug.println("creadte dir: " + parent);
     }
 
     /**
-     * TODO d•¡ƒtƒ@ƒCƒ‹ƒ`ƒFƒbƒN
-     * TODO ƒAƒNƒVƒ‡ƒ“‚Í‘I‘ğ‚³‚ê‚½ƒtƒ@ƒCƒ‹‚Ì‚İ
+     * TODO é‡è¤‡ãƒ•ã‚¡ã‚¤ãƒ«ãƒã‚§ãƒƒã‚¯
+     * TODO ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã¯é¸æŠã•ã‚ŒãŸãƒ•ã‚¡ã‚¤ãƒ«ã®ã¿
      */
     private void extractAll(File dir) throws IOException {
 
@@ -449,11 +449,11 @@ Debug.println("row: " + table.getSelectedRow());
 
     // -------------------------------------------------------------------------
 
-    /** ƒvƒƒpƒeƒB */
+    /** ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ */
     static Properties props = new Properties();
 
     /**
-     * ‰Šú‰»‚µ‚Ü‚·D
+     * åˆæœŸåŒ–ã—ã¾ã™ï¼
      */
     static {
         final String path = "/resources/JWinZip.properties";

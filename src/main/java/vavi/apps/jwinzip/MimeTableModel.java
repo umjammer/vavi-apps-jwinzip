@@ -22,7 +22,7 @@ import vavi.net.www.MimeTable;
  */
 public class MimeTableModel extends AbstractTableModel {
 
-    /** ƒJƒ‰ƒ€‚Ì–¼‘O */
+    /** ã‚«ãƒ©ãƒ ã®åå‰ */
     public static final String columnName[] = {
         "type",
         "image",
@@ -38,29 +38,29 @@ public class MimeTableModel extends AbstractTableModel {
     /** */
     private Map<?, ?> entries = new HashMap<Object, Object>();
 
-    /** ƒe[ƒuƒ‹ƒ‚ƒfƒ‹‚ğ\’z‚µ‚Ü‚·D */
+    /** ãƒ†ãƒ¼ãƒ–ãƒ«ãƒ¢ãƒ‡ãƒ«ã‚’æ§‹ç¯‰ã—ã¾ã™ï¼ */
     public MimeTableModel(MimeTable mimeTable) {
         entries = mimeTable.entries();
     }
 
     //-------------------------------------------------------------------------
 
-    /** ƒJƒ‰ƒ€”‚ğæ“¾‚µ‚Ü‚·D */
+    /** ã‚«ãƒ©ãƒ æ•°ã‚’å–å¾—ã—ã¾ã™ï¼ */
     public int getColumnCount() {
         return columnName.length;
     }
 
-    /** ƒJƒ‰ƒ€–¼‚ğæ“¾‚µ‚Ü‚·D */
+    /** ã‚«ãƒ©ãƒ åã‚’å–å¾—ã—ã¾ã™ï¼ */
     public String getColumnName(int columnIndex) {
         return columnName[columnIndex];
     }
 
-    /** s”‚ğæ“¾‚µ‚Ü‚·D */
+    /** è¡Œæ•°ã‚’å–å¾—ã—ã¾ã™ï¼ */
     public int getRowCount() {
         return entries.size();
     }
 
-    /** w’è‚µ‚½ƒJƒ‰ƒ€Cs‚É‚ ‚é’l‚ğæ“¾‚µ‚Ü‚·D */
+    /** æŒ‡å®šã—ãŸã‚«ãƒ©ãƒ ï¼Œè¡Œã«ã‚ã‚‹å€¤ã‚’å–å¾—ã—ã¾ã™ï¼ */
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
         case 0: // contentType

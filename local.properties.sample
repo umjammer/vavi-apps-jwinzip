@@ -1,0 +1,29 @@
+#
+# source directory
+#
+vavi.dir=${user.home}/src/foo
+m2.repo=${user.home}/.m2/repository
+
+dir.windows=c:/WINDOWS
+windows.home=${dir.windows}/system32
+jdk.home=c:/usr/local/java
+cygwin.home=c:/usr/local/cygwin
+mingw.include=${cygwin.home}/usr/include/mingw
+w32api.include=${cygwin.home}/usr/include/w32api
+mingw.lib=${cygwin.home}/lib/mingw
+
+stuffit.include=c:/tmp/000/stuffit/src
+
+jacobgen.home=c:/tmp/000/jacobgen_0.10
+com4j.home=c:/tmp/000/com4j
+
+
+#
+# run
+#
+run.in=/Applications/Local/Zipeg.app/Contents/Resources/Java/sample.zip
+
+#
+# jacobgen
+#
+jacobgen.in=${tlbimp.out}

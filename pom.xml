@@ -40,6 +40,35 @@
         </executions>
       </plugin>
     </plugins>
+    <pluginManagement>
+      <plugins>
+        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+        <plugin>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>native2ascii-maven-plugin</artifactId>
+                    <versionRange>[1.0-alpha-1,)</versionRange>
+                    <goals>
+                      <goal>native2ascii</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore></ignore>
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
   <repositories>
   </repositories>
@@ -54,8 +83,7 @@
   	<dependency>
   		<groupId>vavi</groupId>
   		<artifactId>vavi-commons</artifactId>
-  		<version>1.0.0</version>
-  		<optional>false</optional>
+  		<version>1.0.3</version>
   	</dependency>
   	<dependency>
   		<groupId>net.sf.jacob-project</groupId>
@@ -72,7 +100,7 @@
   	<dependency>
   		<groupId>vavi</groupId>
   		<artifactId>vavi-commons-sandbox</artifactId>
-  		<version>0.3.0</version>
+  		<version>0.3.1</version>
   		<optional>false</optional>
   	</dependency>
   	<dependency>

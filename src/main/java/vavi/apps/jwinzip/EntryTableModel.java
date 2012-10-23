@@ -29,7 +29,7 @@ import vavi.util.archive.Entry;
  */
 public class EntryTableModel extends AbstractTableModel {
 
-    /** ƒJƒ‰ƒ€‚Ì–¼‘O */
+    /** ã‚«ãƒ©ãƒ ã®åå‰ */
     public static final String columnName[] = {
         "Name", "Type", "Modified", "Size", "Ratio", "Packed", "Path"
     };
@@ -45,7 +45,7 @@ public class EntryTableModel extends AbstractTableModel {
     /** model */
     private Entry[] entries;
 
-    /** ƒe[ƒuƒ‹ƒ‚ƒfƒ‹‚ğ\’z‚µ‚Ü‚·D */
+    /** ãƒ†ãƒ¼ãƒ–ãƒ«ãƒ¢ãƒ‡ãƒ«ã‚’æ§‹ç¯‰ã—ã¾ã™ï¼ */
     public EntryTableModel(Archive archive) {
         List<Entry> list = new ArrayList<Entry>();
         Entry[] entries = archive.entries();
@@ -60,22 +60,22 @@ public class EntryTableModel extends AbstractTableModel {
 
     // -------------------------------------------------------------------------
 
-    /** ƒJƒ‰ƒ€”‚ğæ“¾‚µ‚Ü‚·D */
+    /** ã‚«ãƒ©ãƒ æ•°ã‚’å–å¾—ã—ã¾ã™ï¼ */
     public int getColumnCount() {
         return columnName.length;
     }
 
-    /** ƒJƒ‰ƒ€–¼‚ğæ“¾‚µ‚Ü‚·D */
+    /** ã‚«ãƒ©ãƒ åã‚’å–å¾—ã—ã¾ã™ï¼ */
     public String getColumnName(int columnIndex) {
         return columnName[columnIndex];
     }
 
-    /** s”‚ğæ“¾‚µ‚Ü‚·D */
+    /** è¡Œæ•°ã‚’å–å¾—ã—ã¾ã™ï¼ */
     public int getRowCount() {
         return entries.length;
     }
 
-    /** w’è‚µ‚½ƒJƒ‰ƒ€Cs‚É‚ ‚é’l‚ğæ“¾‚µ‚Ü‚·D */
+    /** æŒ‡å®šã—ãŸã‚«ãƒ©ãƒ ï¼Œè¡Œã«ã‚ã‚‹å€¤ã‚’å–å¾—ã—ã¾ã™ï¼ */
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
         case 0:
