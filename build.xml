@@ -7,33 +7,21 @@
 <!--                                                                        -->
 <!-- JWinZip                                                                -->
 <!--                                                                        -->
-<!-- @author	Naohide Sano                                                -->
-<!-- @version	0.00	030124	nsano	initial version                     -->
+<!-- @author Naohide Sano                                                   -->
+<!-- @version 0.00 030124 nsano initial version                             -->
 <!--                                                                        -->
 <!-- ////////////////////////////////////////////////////////////////////// -->
 
-<project name="jwinzip" default="run" basedir=".">
+<project name="vavi-apps-jwinzip" default="run" basedir=".">
 
-  <property file="../../local.properties" />
+  <property environment="env"/>
   <property file="local.properties" />
-
-  <property name="dir.native" value="src/vavi/util/archive/vavi" />
 
   <property name="dir.build" value="build" />
   <property name="dir.lib" value="lib" />
 
   <!-- クラスパスの定義 -->
   <path id="project.class.path">
-    <pathelement location="../.." />
-    <pathelement location="${dir.build}" />
-<!--
-    <fileset dir="${dir.lib}">
-      <include name="*.jar" />
-    </fileset>
--->
-    <pathelement location="${m2.repo}/commons-compress/commons-compress/20050911/commons-compress-20050911.jar" />
-    <pathelement location="${m2.repo}/org/apache/ant/ant/1.7.0/ant-1.7.0.jar" />
-    <pathelement location="${dir.lib}/JBinHex.jar" />
     <fileset dir="${vavi.dir}/lib">
       <include name="*.jar" />
     </fileset>
@@ -50,17 +38,6 @@
   <target name="clean" description="ビルド環境のクリア">
     <delete file="JWinZip.jar" />
     <delete dir="${dir.build}" />
-    <delete file="${dir.lib}/JniCanvas.dll" />
-    <delete file="${dir.lib}/GcaWrapper.dll" />
-    <delete file="${dir.lib}/SevenZipWrapper.dll" />
-    <delete file="${dir.lib}/RarWrapper.dll" />
-    <delete>
-      <fileset dir="${dir.native}">
-        <include name="*.o" />
-        <include name="*.h" />
-        <exclude name="hashtable*.h" />
-      </fileset>
-    </delete>
   </target>
 
   <!-- prepare -->
@@ -281,7 +258,8 @@
   <!-- gca -->
   <target name="gca" depends="dist" description="Test gca">
     <java classname="vavi.apps.jwinzip.JWinZip" fork="yes">
-      <env key="PATH" path="${dir.lib}" /> <!-- for gca32.dll -->
+      <env key="PATH" path="${dir.lib}" />
+      <!-- for gca32.dll -->
       <jvmarg value="-Djava.library.path=${dir.lib}" />
       <classpath refid="project.class.path" />
       <arg path="tmp/test.gca" />
@@ -390,7 +368,7 @@
       <arg path="tmp\JWinZip.java" />
     </java>
   </target>
-          
+
   <!-- sit.test -->
   <target name="sit.test" depends="dist" description="NativeStuffItArchive Test">
     <java classname="vavi.util.archive.vavi.NativeStuffItArchive" fork="yes">
@@ -428,7 +406,7 @@
   <target name="javah.jniCanvas" depends="compile" description="Makeing Header for JniCanvas">
     <javah destdir="src/vavi/awt">
       <classpath refid="project.class.path" />
-        <class name="vavi.awt.JniCanvas" />
+      <class name="vavi.awt.JniCanvas" />
       <class name="vavi.awt.JniTest" />
     </javah>
   </target>
