@@ -82,22 +82,24 @@ public class JWinZip {
      * @param file file to output
      */
     private void extract(Entry entry, File file) throws IOException {
-        InputStream is = new BufferedInputStream(archive.getInputStream(entry));
-        OutputStream os = null;
-        os = new BufferedOutputStream(new FileOutputStream(file));
-        long size = entry.getSize();
-        final int SIZE = 8192;
-        byte buf[] = new byte[SIZE];
-        while (size > 0) {
-            int l = is.read(buf, 0, SIZE);
-            if (l == -1) {
-                throw new IOException("illegal stream");
+        try (
+            InputStream is = new BufferedInputStream(archive.getInputStream(entry));
+            OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
+        ) {
+            long size = entry.getSize();
+            final int SIZE = 8192;
+            byte buf[] = new byte[SIZE];
+            while (size > 0) {
+                int l = is.read(buf, 0, SIZE);
+                if (l == -1) {
+                    throw new IOException("illegal stream");
+                }
+                os.write(buf, 0, l);
+                size -= l;
             }
-            os.write(buf, 0, l);
-            size -= l;
+            os.close();
+            file.setLastModified(entry.getTime());
         }
-        os.close();
-        file.setLastModified(entry.getTime());
     }
 
     /** */
@@ -105,15 +107,15 @@ public class JWinZip {
         InputStream is = new BufferedInputStream(new FileInputStream(file));
 
         for (int i = 0; i < inputStreamSpis.length; i++) {
-Debug.println("inputStreamSpi: " + StringUtil.getClassName(inputStreamSpis[i].getClass()));
+            Debug.println("inputStreamSpi: " + StringUtil.getClassName(inputStreamSpis[i].getClass()));
             if (inputStreamSpis[i].canExpandInput(is)) {
                 InputStream inputStream = inputStreamSpis[i].createInputStreamInstance();
-Debug.println("inputStream: " + inputStream.getClass());
+                Debug.println("inputStream: " + inputStream.getClass());
                 return inputStream;
             }
         }
 
-Debug.println("default stream");
+        Debug.println("default stream");
         return new FileInputStream(file);
     }
 
@@ -123,17 +125,18 @@ Debug.println("default stream");
     private void setArchive(File file) throws IOException {
         InputStream is = new BufferedInputStream(getInputStream(file));
         for (int i = 0; i < archiveSpis.length; i++) {
-Debug.println("archiveSpi: " + archiveSpis[i]);
-            boolean canExtract = false;;
+            Debug.println("archiveSpi: " + archiveSpis[i]);
+            boolean canExtract = false;
+
             try {
                 canExtract = archiveSpis[i].canExtractInput(file);
             } catch (IllegalArgumentException e) {
-Debug.println(e);
+                Debug.println(e);
                 canExtract = archiveSpis[i].canExtractInput(is);
             }
             if (canExtract) {
                 archive = archiveSpis[i].createArchiveInstance();
-Debug.println("archive: " + archive.getClass());
+                Debug.println("archive: " + archive.getClass());
                 return;
             }
         }
@@ -177,7 +180,7 @@ Debug.println("archive: " + archive.getClass());
                 inputStreamSpis[i++] = (InputStreamSpi) Class.forName(className).newInstance();
             }
         } catch (Exception e) {
-Debug.printStackTrace(e);
+            Debug.printStackTrace(e);
             System.exit(1);
         }
     }
@@ -294,7 +297,7 @@ Debug.printStackTrace(e);
 // Debug.println("parent: " + parent.isDirectory() + ": " + parent.exists() + ": " + parent);
         if (!parent.exists()) {
             parent.mkdirs();
-Debug.println("creadte dir: " + parent);
+            Debug.println("creadte dir: " + parent);
         }
     }
 
@@ -305,7 +308,7 @@ Debug.println("creadte dir: " + parent);
     private void extractAll(File dir) throws IOException {
 
         Entry[] entries = archive.entries();
-Debug.println("dir: " + dir);
+        Debug.println("dir: " + dir);
         for (int i = 0; i < entries.length; i++) {
 
             File file = new File(dir.getPath(), entries[i].getName());
@@ -313,7 +316,7 @@ Debug.println("dir: " + dir);
             if (entries[i].isDirectory()) {
                 if (!file.exists()) {
                     file.mkdirs();
-Debug.println("create dir: " + file);
+                    Debug.println("create dir: " + file);
                 }
             } else {
                 file = new File(dir.getPath(), entries[i].getName());
@@ -321,9 +324,9 @@ Debug.println("create dir: " + file);
 
                 try {
                     extract(entries[i], file);
-System.err.println("Melting " + entries[i].getName() + " to " + file);
+                    System.err.println("Melting " + entries[i].getName() + " to " + file);
                 } catch (IOException e) {
-System.err.println("Melting to " + file + " failed.");
+                    System.err.println("Melting to " + file + " failed.");
                     // e.printStackTrace(System.err);
                 }
             }
@@ -338,7 +341,7 @@ System.err.println("Melting to " + file + " failed.");
         makeSureParentDirs(file);
 
         extract(entry, file);
-System.err.println("Temporary " + entry.getName() + " to " + file);
+        System.err.println("Temporary " + entry.getName() + " to " + file);
 
         Runtime.getRuntime().exec("notepad " + file);
     }
@@ -351,7 +354,7 @@ System.err.println("Temporary " + entry.getName() + " to " + file);
 
     /** */
     private void init() throws IOException {
-Debug.println(APP_PROPS);
+        Debug.println(APP_PROPS);
         InputStream is = null;
         try {
             is = new FileInputStream(APP_PROPS);
@@ -374,7 +377,8 @@ Debug.println(APP_PROPS);
     // ----
 
     /** */
-    private Action extractAction = new AbstractAction(rb.getString("action.extract"), (ImageIcon) UIManager.get("jWinZip.extractIcon")) {
+    private Action extractAction = new AbstractAction(rb.getString("action.extract"),
+                                                      (ImageIcon) UIManager.get("jWinZip.extractIcon")) {
         private JFileChooser fc = new JFileChooser();
 
         void init() {
@@ -398,7 +402,7 @@ Debug.println(APP_PROPS);
                 appProps.setProperty("dir.extract", dir.getPath());
                 extractAll(dir);
             } catch (IOException e) {
-Debug.printStackTrace(e);
+                Debug.printStackTrace(e);
             }
         }
     };
@@ -416,7 +420,7 @@ Debug.printStackTrace(e);
             try {
                 exit();
             } catch (IOException e) {
-Debug.printStackTrace(e);
+                Debug.printStackTrace(e);
             }
             System.exit(0);
         }
@@ -428,7 +432,7 @@ Debug.printStackTrace(e);
             try {
                 view();
             } catch (IOException e) {
-Debug.printStackTrace(e);
+                Debug.printStackTrace(e);
             }
         }
     };
@@ -441,7 +445,7 @@ Debug.printStackTrace(e);
                     int x = ev.getX();
                     int y = ev.getY();
                     popupMenu.show(table, x, y);
-Debug.println("row: " + table.getSelectedRow());
+                    Debug.println("row: " + table.getSelectedRow());
                 }
             }
         }

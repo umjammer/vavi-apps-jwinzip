@@ -47,7 +47,7 @@ public class EntryTableModel extends AbstractTableModel {
 
     /** テーブルモデルを構築します． */
     public EntryTableModel(Archive archive) {
-        List<Entry> list = new ArrayList<Entry>();
+        List<Entry> list = new ArrayList<>();
         Entry[] entries = archive.entries();
         for (int i = 0; i < entries.length; i++) {
             if (!entries[i].isDirectory()) {

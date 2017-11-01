@@ -36,7 +36,7 @@ public class MimeTableModel extends AbstractTableModel {
     public static final int[] widths = { 80, 40, 40, 180, 180, 320 };
 
     /** */
-    private Map<?, ?> entries = new HashMap<Object, Object>();
+    private Map<?, ?> entries = new HashMap<>();
 
     /** テーブルモデルを構築します． */
     public MimeTableModel(MimeTable mimeTable) {
