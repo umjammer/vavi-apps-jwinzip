@@ -1,6 +1,14 @@
 #
 # source directory
 #
+jvm=${env.JAVA_HOME}/bin/java
+javac.source=src/main/java
+javac.source.test=src/test/java
+javac.resource=src/main/resources
+javac.resource.test=src/test/resources
+javac.dest=target/classes
+javac.dest.test=target/test-classes
+
 vavi.dir=${user.home}/src/foo
 m2.repo=${user.home}/.m2/repository
 
@@ -16,14 +24,3 @@ stuffit.include=c:/tmp/000/stuffit/src
 
 jacobgen.home=c:/tmp/000/jacobgen_0.10
 com4j.home=c:/tmp/000/com4j
-
-
-#
-# run
-#
-run.in=/Applications/Local/Zipeg.app/Contents/Resources/Java/sample.zip
-
-#
-# jacobgen
-#
-jacobgen.in=${tlbimp.out}

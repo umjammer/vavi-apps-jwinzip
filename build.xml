@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="Shift_JIS"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <!-- ////////////////////////////////////////////////////////////////////// -->
 <!-- Copyright (c) 2002 by Naohide Sano, All rights reserved.               -->
@@ -12,499 +12,53 @@
 <!--                                                                        -->
 <!-- ////////////////////////////////////////////////////////////////////// -->
 
-<project name="vavi-apps-jwinzip" default="run" basedir=".">
+<project name="vavi-apps-jwinzip" default="run" basedir="."
+  xmlns:artifact="urn:maven-artifact-ant">
 
-  <property environment="env"/>
-  <property file="local.properties" />
-
-  <property name="dir.build" value="build" />
-  <property name="dir.lib" value="lib" />
-
-  <!-- クラスパスの定義 -->
-  <path id="project.class.path">
-    <fileset dir="${vavi.dir}/lib">
+  <path id="maven-ant-tasks.classpath">
+    <fileset dir="${user.home}/lib/java/maven-ant-tasks">
       <include name="*.jar" />
     </fileset>
   </path>
+  <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
+           uri="urn:maven-artifact-ant"
+           classpathref="maven-ant-tasks.classpath" />
 
-  <path id="test.class.path">
-    <pathelement location="test" />
-    <path refid="project.class.path" />
+  <property environment="env" />
+  <property file="local.properties" />
+
+  <xmlproperty file="pom.xml" />
+
+  <!-- Path Definitions -->
+  <path id="project.class.path">
+    <pathelement location="${javac.dest.test}" />
+    <pathelement location="${javac.dest}" />
+    <fileset refid="maven-ant-tasks.dependency.fileset" />
   </path>
 
-  <!-- ターゲットの定義 -->
-
-  <!-- clean -->
-  <target name="clean" description="ビルド環境のクリア">
-    <delete file="JWinZip.jar" />
-    <delete dir="${dir.build}" />
-  </target>
-
   <!-- prepare -->
-  <target name="prepare" description="準備">
-    <mkdir dir="${dir.lib}" />
-    <mkdir dir="${dir.build}" />
-    <mkdir dir="${dir.build}/resources" />
-    <mkdir dir="${dir.build}/META-INF/services" />
-  </target>
-
-  <!-- javac vavi.io -->
-  <target name="compile.vavi.io"
-          description="コンパイル vavi.io">
-    <ant dir="../../vavi/io" target="compile" />
-  </target>
-
-  <!-- javac vavi.util.archive -->
-  <target name="compile.vavi.util.archive"
-          description="コンパイル vavi.util.archive">
-    <ant dir="../../vavi/util/archive" target="compile" />
-  </target>
-
-  <!-- commons-compress -->
-  <target name="compile.commons-compress"
-          description="コンパイル commons-compress">
-    <ant dir="/usr/local/src/commons-compress"
-         target="install" />
-  </target>
-
-  <!-- javac -->
-  <target name="compile" depends="prepare,
-                                  compile.vavi.io,
-                                  compile.vavi.util.archive"
-          description="コンパイル">
-    <javac debug="on" deprecation="true" destdir="${dir.build}" encoding="Windows-31J">
-      <classpath refid="project.class.path" />
-      <include name="**/*.java" />
-      <src path="src" />
-    </javac>
-
-    <!-- .properties.sjis -->
-    <native2ascii encoding="Windows-31J"
-                  src="src"
-                  dest="${dir.build}"
-                includes="**/*.properties.sjis"
-                ext=""/>
-  </target>
-
-  <!-- javah -->
-  <target name="javah" depends="compile" description="Makeing Header">
-    <javah destdir="${dir.native}">
-      <classpath refid="project.class.path" />
-      <class name="vavi.util.archive.vavi.NativeGcaArchive" />
-      <class name="vavi.util.archive.vavi.NativeSevenZipArchive" />
-      <class name="vavi.util.archive.vavi.NativeStuffItArchive" />
-      <class name="vavi.util.archive.vavi.NativeRarArchive" />
-    </javah>
-  </target>
-
-  <!-- gcc -->
-  <target name="compile.native" depends="javah" description="コンパイル C">
-    <apply executable="gcc" dest="${dir.native}" parallel="false">
-      <arg value="-c" />
-      <arg line="-g -Wall -O2" />
-      <arg line="-mno-cygwin"/>
-      <arg value="-I." />
-      <arg value="-Ietc/include" />
-      <arg value="-I${stuffit.include}" />
-      <arg value="-I${mingw.include}" />
-      <arg value="-I${w32api.include}" />
-      <arg value="-I${jdk.home}/include" />
-      <arg value="-I${jdk.home}/include/win32" />
-      <arg value="-o"/>
-      <targetfile/>
-      <srcfile/>
-      <fileset dir="${dir.native}" includes="*.c"/>
-      <mapper type="glob" from="*.c" to="*.o"/>
-    </apply>
-  </target>
-
-  <!-- link -->
-  <target name="link" depends="compile.native" description="Makeing DLL">
-    <apply executable="dllwrap" dest="${dir.lib}">
-      <arg value="--add-stdcall-alias" />
-      <arg line="--driver-name gcc"/>
-      <arg line="-mwindows --target=i386-mingw32" />
-      <arg line="-o" />
-      <targetfile />
-      <srcfile />
-      <arg value="${dir.lib}/UnGca32.lib" />
-      <arg value="${dir.lib}/7-zip32.lib" />
-      <arg value="${dir.lib}/unrar32.lib" />
-      <arg value="${dir.lib}/stuffit5.engine-5.1.dll" />
-      <arg value="${dir.native}/hashtable.o" />
-      <arg line="-s -mno-cygwin" />
-      <fileset dir="${dir.native}" includes="*.o" excludes="hashtable.o" />
-      <mapper type="glob" from="*.o" to="*.dll"/>
-    </apply>
-  </target>
-
-  <!-- link stuffit -->
-  <target name="link.sit" depends="compile.native" description="Makeing EXE stuffit">
-    <apply executable="gcc" dest="${dir.lib}">
-      <arg line="-o" />
-      <targetfile />
-      <srcfile />
-      <arg value="${dir.lib}/stuffit5.engine-5.1.dll" />
-      <arg value="${dir.native}/hashtable.o" />
-      <arg line="-mno-cygwin" />
-      <fileset dir="${dir.native}" includes="StuffItWrapper.o"/>
-      <mapper type="glob" from="*.o" to="*.exe"/>
-    </apply>
-  </target>
-
-  <!-- resource -->
-  <target name="resource" depends="prepare" description="リソース生成">
-    <native2ascii encoding="Windows-31J"
-                  src="etc"
-                  dest="${dir.build}"
-                  includes="**/*.properties.sjis"
-                  ext=""/>
-  </target>
-
-  <!-- dist -->
-  <target name="dist" depends="resource,compile,link" description="Distribution">
-    <copy todir="${dir.build}" preservelastmodified="true">
-      <fileset dir="etc">
-        <include name="META-INF/**/*" />
-        <include name="resources/**/*" />
-      </fileset>
-      <fileset dir="src">
-        <include name="**/*.properties" />
-      </fileset>
-    </copy>
-  </target>
-
-  <!-- jar -->
-  <target name="packaging" depends="dist" description="パッケージング">
-    <jar jarfile="./JWinZip.jar" manifest="etc/manifest.mf">
-      <fileset dir="build">
-        <include name="**/*" />
-      </fileset>
-      <fileset dir="../..">
-        <include name="vavi/util/Debug.class" />
-        <include name="vavi/util/StringUtil.class" />
-        <include name="vavi/util/*.properties" />
-        <include name="vavi/util/RegexFileFilter.class" />
-        <include name="vavi/util/archive/**/*.class" />
-        <include name="vavi/util/archive/**/*.properties" />
-        <include name="vavi/util/logging/*.class" />
-        <include name="vavi/util/logging/*.properties" />
-        <include name="vavi/net/www/MimeTable.class" />
-        <include name="vavi/net/www/MimeEntry.class" />
-      </fileset>
-    </jar>
-  </target>
-
-  <!-- install -->
-  <target name="install" depends="packaging" description="Install">
-    <copy todir="/usr/local/lib/java" preservelastmodified="true">
-      <fileset dir=".">
-        <include name="*.jar" />
-      </fileset>
-    </copy>
+  <target name="prepare" description="Preparing">
+    <artifact:pom file="pom.xml" id="maven.project" />
+    <artifact:dependencies fileSetId="maven-ant-tasks.dependency.fileset">
+      <pom refid="maven.project" />
+    </artifact:dependencies>
+    <artifact:mvn pom="pom.xml">
+      <arg value="-q"/>
+      <arg value="clean"/>
+      <arg value="package"/>
+      <arg value="-Dmaven.test.skip=true"/>
+    </artifact:mvn>
   </target>
 
   <!-- run -->
-  <target name="run" depends="packaging" description="Run program">
+  <target name="run" depends="prepare" description="Run program">
     <java classname="vavi.apps.jwinzip.JWinZip" fork="yes">
       <env key="PATH" path="${dir.lib}" />
-      <jvmarg value="-Djava.library.path=${dir.lib};../../../lib" />
-      <jvmarg value="-Dswing.plaf.metal.controlFont=Dialog-12" />
+      <jvmarg value="-Djava.library.path=${dir.lib}" />
+      <jvmarg value="-Dswing.plaf.metal.controlFont=${font}" />
+      <jvmarg value="-Dapple.laf.useScreenMenuBar=true" />
       <classpath refid="project.class.path" />
       <arg path="${run.in}" />
-    </java>
-  </target>
-
-  <!-- go -->
-  <target name="go" depends="packaging" description="Run program using jar">
-    <java classname="vavi.apps.jwinzip.JWinZip" fork="yes">
-      <env key="PATH" path="${dir.lib}" />
-      <jvmarg value="-Djava.library.path=${dir.lib};../../../lib" />
-      <jvmarg value="-Dswing.plaf.metal.controlFont=Dialog-12" />
-      <classpath>
-        <pathelement location="JWinZip.jar" />
-      </classpath>
-      <arg path="${run.in}" />
-    </java>
-  </target>
-
-  <!-- rar -->
-  <target name="rar" depends="compile" description="Test rar">
-    <java classname="vavi.apps.jwinzip.JWinZip" fork="yes">
-      <env key="PATH" path="${dir.lib}" />
-      <jvmarg value="-Djava.library.path=${dir.lib}" />
-      <classpath refid="project.class.path" />
-      <arg path="tmp/test.rar" />
-    </java>
-  </target>
-
-  <!-- gzip -->
-  <target name="gzip" depends="compile" description="Test gzip">
-    <java classname="vavi.apps.jwinzip.JWinZip" fork="yes">
-      <classpath refid="project.class.path" />
-      <arg path="tmp/test.tar.gz" />
-    </java>
-  </target>
-
-  <!-- bzip2 -->
-  <target name="bzip2" depends="compile" description="Test bzip2">
-    <java classname="vavi.apps.jwinzip.JWinZip" fork="yes">
-      <classpath refid="project.class.path" />
-      <arg path="C:\usr\ftp\7z313.tar.bz2" />
-      <arg path="tmp/test.tar.bz2" />
-    </java>
-  </target>
-
-  <!-- gca -->
-  <target name="gca" depends="dist" description="Test gca">
-    <java classname="vavi.apps.jwinzip.JWinZip" fork="yes">
-      <env key="PATH" path="${dir.lib}" />
-      <!-- for gca32.dll -->
-      <jvmarg value="-Djava.library.path=${dir.lib}" />
-      <classpath refid="project.class.path" />
-      <arg path="tmp/test.gca" />
-    </java>
-  </target>
-
-  <!-- 7z -->
-  <target name="7z" depends="dist" description="Test 7z">
-    <java classname="vavi.apps.jwinzip.JWinZip" fork="yes">
-      <env key="PATH" path="${dir.lib}" />
-      <jvmarg value="-Djava.library.path=${dir.lib}" />
-      <classpath refid="project.class.path" />
-      <arg path="tmp/test.7z" />
-    </java>
-  </target>
-
-  <!-- tar -->
-  <target name="tar" depends="compile" description="Test tar">
-    <java classname="vavi.apps.jwinzip.JWinZip" fork="yes">
-      <classpath refid="project.class.path" />
-      <arg path="tmp/test.tar" />
-    </java>
-  </target>
-
-  <!-- sit -->
-  <target name="sit" depends="dist" description="sit">
-    <java classname="vavi.apps.jwinzip.JWinZip" fork="yes">
-      <jvmarg value="-Djava.library.path=${dir.lib}" />
-      <classpath refid="project.class.path" />
-      <arg path="tmp/test.sit" />
-    </java>
-  </target>
-
-  <!-- lzh -->
-  <target name="lzh" depends="compile" description="Test tar">
-    <java classname="vavi.apps.jwinzip.JWinZip" fork="yes">
-      <classpath refid="project.class.path" />
-      <arg path="tmp/ugca010c.lzh" />
-    </java>
-  </target>
-
-  <!-- hqx -->
-  <target name="hqx" depends="compile" description="Test hqx">
-    <java classname="vavi.apps.jwinzip.JWinZip" fork="yes">
-      <classpath refid="project.class.path" />
-      <arg path="tmp\p88epr435c.sit.hqx" />
-    </java>
-  </target>
-
-  <!-- cab.test (COM) -->
-  <target name="cab.test" depends="compile" description="Test cab">
-    <java classname="vavi.util.archive.vavi.ComCabArchive" fork="yes">
-      <jvmarg value="-Djava.library.path=${dir.lib};../../../lib" />
-      <classpath refid="project.class.path" />
-      <arg path="tmp\dajava.cab" />
-      <arg path="com\ms\dxmedia\Cycler.class" />
-    </java>
-  </target>
-
-  <!-- cab.test (java) -->
-  <target name="cab.test2" depends="compile" description="Test cab">
-    <java classname="vavi.util.cab.CAB" fork="yes">
-      <classpath refid="project.class.path" />
-      <arg path="tmp\dajava.cab" />
-    </java>
-  </target>
-
-  <!-- rar.test -->
-  <target name="rar.test" depends="compile" description="RarArchive Test">
-    <java classname="vavi.util.archive.vavi.ComRarArchive" fork="yes">
-      <jvmarg value="-Djava.library.path=${dir.lib}" />
-      <classpath refid="project.class.path" />
-      <arg path="tmp\test.rar" />
-      <arg path="tmp\JWinZip.java" />
-    </java>
-  </target>
-
-  <!-- arj.test -->
-  <target name="arj.test" depends="compile" description="ArjArchive Test">
-    <java classname="vavi.util.archive.vavi.ComArjArchive" fork="yes">
-      <jvmarg value="-Djava.library.path=${dir.lib}" />
-      <classpath refid="project.class.path" />
-      <arg path="tmp\test.arj" />
-      <arg path="tmp\JWinZip.java" />
-    </java>
-  </target>
-
-  <!-- 7z.test -->
-  <target name="7z.test" depends="dist" description="NativeSevenZipArchive Test">
-    <java classname="vavi.util.archive.vavi.NativeSevenZipArchive" fork="yes">
-      <env key="PATH" path="${dir.lib}" />
-      <jvmarg value="-Djava.library.path=${dir.lib}" />
-      <classpath refid="project.class.path" />
-      <arg path="tmp\test.7z" />
-      <arg path="vavi\ComRarArchive.java" />
-    </java>
-  </target>
-
-  <!-- gca.test -->
-  <target name="gca.test" depends="dist" description="NativeGcaArchive Test">
-    <java classname="vavi.util.archive.vavi.NativeGcaArchive" fork="yes">
-      <env key="PATH" path="${dir.lib}" />
-      <jvmarg value="-Djava.library.path=${dir.lib}" />
-      <classpath refid="project.class.path" />
-      <arg path="tmp\test.gca" />
-      <arg path="tmp\JWinZip.java" />
-    </java>
-  </target>
-
-  <!-- sit.test -->
-  <target name="sit.test" depends="dist" description="NativeStuffItArchive Test">
-    <java classname="vavi.util.archive.vavi.NativeStuffItArchive" fork="yes">
-      <env key="PATH" path="${dir.lib}" />
-      <jvmarg value="-Djava.library.path=${dir.lib}" />
-      <classpath refid="project.class.path" />
-      <arg path="tmp\test.sit" />
-    </java>
-  </target>
-
-  <!-- t1 -->
-  <target name="t1" depends="dist" description="Test Bzip2Uncompress">
-    <java classname="Bzip2Uncompress" fork="yes">
-      <classpath refid="project.class.path" />
-      <arg path="tmp/test.tar.bz2" />
-      <arg path="tmp/test_bz2.tar" />
-    </java>
-  </target>
-
-  <!-- cpio -->
-  <target name="cpio" depends="dist" description="cpio">
-    <java classname="cpio" fork="yes">
-      <classpath refid="project.class.path" />
-      <arg value="-i" />
-      <arg line="-I ${in}" />
-      <arg line="--basedir ${out}" />
-      <arg value="-t" />
-      <arg value="-v" />
-    </java>
-  </target>
-
-  <!-- ____________________________________________________________________ -->
-
-  <!-- javah for JniCanvas -->
-  <target name="javah.jniCanvas" depends="compile" description="Makeing Header for JniCanvas">
-    <javah destdir="src/vavi/awt">
-      <classpath refid="project.class.path" />
-      <class name="vavi.awt.JniCanvas" />
-      <class name="vavi.awt.JniTest" />
-    </javah>
-  </target>
-
-  <!-- gcc JniCanvas -->
-  <target name="compile.jniCanvas" depends="javah.jniCanvas" description="コンパイル C JniCanvas">
-    <apply executable="gcc" dest="src/vavi/awt" parallel="false">
-      <arg value="-c" />
-      <arg line="-g -Wall -O2" />
-      <arg line="-mno-cygwin"/>
-      <arg value="-I." />
-      <arg value="-I${mingw.include}" />
-      <arg value="-I${w32api.include}" />
-      <arg value="-I${jdk.home}/include" />
-      <arg value="-I${jdk.home}/include/win32" />
-      <arg value="-o"/>
-      <targetfile/>
-      <srcfile/>
-      <fileset dir="src/vavi/awt" includes="*.c"/>
-      <mapper type="glob" from="*.c" to="*.o"/>
-    </apply>
-  </target>
-
-  <!-- link JniCanvas -->
-  <target name="link.jniCanvas" depends="compile.jniCanvas" description="Makeing DLL JniCanvas">
-    <echo message="${java.home}/bin/jawt.dll" />
-    <apply executable="dllwrap" dest="${dir.lib}">
-      <arg value="--add-stdcall-alias" />
-      <arg line="--driver-name gcc"/>
-      <arg line="-mwindows --target=i386-mingw32" />
-      <arg line="-o" />
-      <targetfile />
-      <srcfile />
-      <arg value="${java.home}/../lib/jawt.lib" />
-      <arg value="${java.home}/../lib/jvm.lib" />
-      <arg line="-s -mno-cygwin" />
-      <fileset dir="src/vavi/awt" includes="*.o"/>
-      <mapper type="glob" from="*.o" to="*.dll"/>
-    </apply>
-  </target>
-
-  <!-- jni canvas -->
-  <target name="t2" depends="dist,link.jniCanvas" description="Test JniCanvas">
-    <java classname="vavi.awt.JniCanvas" fork="yes">
-      <jvmarg value="-Djava.library.path=${dir.lib}" />
-      <classpath refid="project.class.path" />
-    </java>
-  </target>
-
-  <!-- jni test -->
-  <target name="t3" depends="dist,link.jniCanvas" description="Test JniTest">
-    <java classname="vavi.awt.JniTest" fork="yes">
-      <jvmarg value="-Djava.library.path=${dir.lib}" />
-      <classpath refid="project.class.path" />
-    </java>
-  </target>
-
-  <!-- ____________________________________________________________________ -->
-
-  <!-- itunes -->
-  <target name="it" depends="dist" description="Test iTunes COM API">
-    <java classname="ITunesCom" fork="yes">
-      <jvmarg value="-Djava.library.path=${dir.lib};${vavi.dir}/lib" />
-      <classpath refid="project.class.path" />
-    </java>
-  </target>
-
-  <!-- tlbimp -->
-  <target name="tlbimp" depends="" description="tlbimp">
-    <exec executable="C:\Program Files\Microsoft Visual Studio 8\SDK\v2.0\Bin\tlbimp">
-      <arg value="${tlbimp.in}" />
-      <arg value="/out:${tlbimp.out}" />
-      <arg value="/namespace:${tlbimp.ns}" />
-    </exec>
-  </target>
-
-  <!-- jacobgen -->
-  <target name="jacobgen" depends="" description="jacobgen">
-    <java classname="com.jacob.jacobgen.Jacobgen" fork="yes">
-      <jvmarg value="-Djava.library.path=${jacobgen.home}/x86" />
-      <classpath>
-        <path refid="project.class.path" />
-        <fileset dir="${jacobgen.home}/">
-          <include name="**/*.jar" />
-        </fileset>
-      </classpath>
-      <arg value="${jacobgen.in}" />
-    </java>
-  </target>
-
-  <!-- tlbimp -->
-  <target name="tlbimp.java" depends="" description="tlbimp (java)">
-    <java jar="${com4j.home}/tlbimp.jar" fork="yes">
-      <jvmarg value="-Djava.library.path=${com4j.home}" />
-      <classpath refid="project.class.path" />
-      <arg line="-o ${tlbimp.dir}" />
-      <arg line="-p ${tlbimp.package}" />
-      <arg value="${tlbimp.in}" />
     </java>
   </target>
 

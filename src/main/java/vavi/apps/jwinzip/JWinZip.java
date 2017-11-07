@@ -70,7 +70,7 @@ import vavi.util.archive.spi.InputStreamSpi;
 public class JWinZip {
 
     /** */
-    private static final ResourceBundle rb = ResourceBundle.getBundle("resources.JWinZipResources", Locale.getDefault());
+    private static final ResourceBundle rb = ResourceBundle.getBundle("JWinZipResources", Locale.getDefault());
 
     // -------------------------------------------------------------------------
 
@@ -135,7 +135,12 @@ public class JWinZip {
                 canExtract = archiveSpis[i].canExtractInput(is);
             }
             if (canExtract) {
-                archive = archiveSpis[i].createArchiveInstance();
+                try {
+                    archive = archiveSpis[i].createArchiveInstance(file);
+                } catch (IllegalArgumentException e) {
+                    Debug.println(e);
+                    archive = archiveSpis[i].createArchiveInstance(is);
+                }
                 Debug.println("archive: " + archive.getClass());
                 return;
             }
@@ -460,7 +465,7 @@ public class JWinZip {
      * 初期化します．
      */
     static {
-        final String path = "/resources/JWinZip.properties";
+        final String path = "/JWinZip.properties";
         final Class<?> clazz = JWinZip.class;
 
         try {

@@ -12,8 +12,7 @@
     <name></name>
   </organization>
   <version>1.0.0</version>
-  <url>http://www.vavisoft.com/</url>
-  <description></description>
+  <url>https://github.com/umjammer/vavi-apps-jwinzip</url>
   <build>
     <plugins>
       <plugin>
@@ -33,7 +32,9 @@
               <goal>native2ascii</goal>
             </goals>
             <configuration>
-              <encoding>Windows-31J</encoding>
+              <includes>
+                <include>**/*_ja_JP.properties</include>
+              </includes>
             </configuration>
           </execution>
         </executions>
@@ -41,8 +42,8 @@
     </plugins>
     <pluginManagement>
       <plugins>
-        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
         <plugin>
+          <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
           <groupId>org.eclipse.m2e</groupId>
           <artifactId>lifecycle-mapping</artifactId>
           <version>1.0.0</version>
@@ -92,13 +93,11 @@
       <groupId>net.sf.jacob-project</groupId>
       <artifactId>jacob</artifactId>
       <version>1.14.3</version>
-      <optional>false</optional>
     </dependency>
     <dependency>
-      <groupId>vavi</groupId>
+      <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-util-archive</artifactId>
-      <version>1.0.0</version>
-      <optional>false</optional>
+      <version>1.0.5</version>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId>
@@ -110,10 +109,11 @@
       <artifactId>vavi-awt</artifactId>
       <version>1.0.1</version>
     </dependency>
-    <dependency>
-      <groupId>org.rxtx</groupId>
-      <artifactId>rxtx</artifactId>
-      <version>2.1.7</version>
-    </dependency>
   </dependencies>
+  <scm>
+    <url>https://github.com/umjammer/vavi-apps-jwinzip</url>
+  </scm>
+  <issueManagement>
+    <url>https://github.com/umjammer/vavi-apps-jwinzip/issues</url>
+  </issueManagement>
 </project>
