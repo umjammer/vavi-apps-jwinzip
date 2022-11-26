@@ -23,7 +23,7 @@ import vavi.net.www.MimeTable;
 public class MimeTableModel extends AbstractTableModel {
 
     /** カラムの名前 */
-    public static final String columnName[] = {
+    public static final String[] columnName = {
         "type",
         "image",
         "action",
@@ -36,7 +36,7 @@ public class MimeTableModel extends AbstractTableModel {
     public static final int[] widths = { 80, 40, 40, 180, 180, 320 };
 
     /** */
-    private Map<?, ?> entries = new HashMap<>();
+    private Map<?, ?> entries;
 
     /** テーブルモデルを構築します． */
     public MimeTableModel(MimeTable mimeTable) {

@@ -17,16 +17,14 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Enumeration;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Locale;
-import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.ResourceBundle;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -50,11 +48,9 @@ import javax.swing.event.MouseInputListener;
 
 import vavi.util.Debug;
 import vavi.util.RegexFileFilter;
-import vavi.util.StringUtil;
 import vavi.util.archive.Archive;
+import vavi.util.archive.Archives;
 import vavi.util.archive.Entry;
-import vavi.util.archive.spi.ArchiveSpi;
-import vavi.util.archive.spi.InputStreamSpi;
 
 
 /**
@@ -82,13 +78,12 @@ public class JWinZip {
      * @param file file to output
      */
     private void extract(Entry entry, File file) throws IOException {
-        try (
-            InputStream is = new BufferedInputStream(archive.getInputStream(entry));
-            OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-        ) {
+        try (InputStream is = new BufferedInputStream(archive.getInputStream(entry));
+             OutputStream os = new BufferedOutputStream(Files.newOutputStream(file.toPath()))) {
+
             long size = entry.getSize();
             final int SIZE = 8192;
-            byte buf[] = new byte[SIZE];
+            byte[] buf = new byte[SIZE];
             while (size > 0) {
                 int l = is.read(buf, 0, SIZE);
                 if (l == -1) {
@@ -99,94 +94,6 @@ public class JWinZip {
             }
             os.close();
             file.setLastModified(entry.getTime());
-        }
-    }
-
-    /** */
-    private InputStream getInputStream(File file) throws IOException {
-        InputStream is = new BufferedInputStream(new FileInputStream(file));
-
-        for (int i = 0; i < inputStreamSpis.length; i++) {
-            Debug.println("inputStreamSpi: " + StringUtil.getClassName(inputStreamSpis[i].getClass()));
-            if (inputStreamSpis[i].canExpandInput(is)) {
-                InputStream inputStream = inputStreamSpis[i].createInputStreamInstance();
-                Debug.println("inputStream: " + inputStream.getClass());
-                return inputStream;
-            }
-        }
-
-        Debug.println("default stream");
-        return new FileInputStream(file);
-    }
-
-    /**
-     * @throws NoSuchElementException
-     */
-    private void setArchive(File file) throws IOException {
-        InputStream is = new BufferedInputStream(getInputStream(file));
-        for (int i = 0; i < archiveSpis.length; i++) {
-            Debug.println("archiveSpi: " + archiveSpis[i]);
-            boolean canExtract = false;
-
-            try {
-                canExtract = archiveSpis[i].canExtractInput(file);
-            } catch (IllegalArgumentException e) {
-                Debug.println(e);
-                canExtract = archiveSpis[i].canExtractInput(is);
-            }
-            if (canExtract) {
-                try {
-                    archive = archiveSpis[i].createArchiveInstance(file);
-                } catch (IllegalArgumentException e) {
-                    Debug.println(e);
-                    archive = archiveSpis[i].createArchiveInstance(is);
-                }
-                Debug.println("archive: " + archive.getClass());
-                return;
-            }
-        }
-
-        is.close();
-        throw new NoSuchElementException(file + " is not supported type");
-    }
-
-    /** */
-    private static ArchiveSpi[] archiveSpis;
-
-    /** */
-    private static InputStreamSpi[] inputStreamSpis;
-
-    /** */
-    static {
-        final String path1 = "/META-INF/services/vavi.util.archive.spi.ArchiveSpi";
-        final String path2 = "/META-INF/services/vavi.util.archive.spi.InputStreamSpi";
-
-        try {
-            Properties props = new Properties();
-
-            props.load(JWinZip.class.getResourceAsStream(path1));
-            props.list(System.err);
-            archiveSpis = new ArchiveSpi[props.size()];
-            Enumeration<?> e = props.propertyNames();
-            int i = 0;
-            while (e.hasMoreElements()) {
-                String className = (String) e.nextElement();
-                archiveSpis[i++] = (ArchiveSpi) Class.forName(className).newInstance();
-            }
-
-            props.clear();
-            props.load(JWinZip.class.getResourceAsStream(path2));
-            props.list(System.err);
-            inputStreamSpis = new InputStreamSpi[props.size()];
-            e = props.propertyNames();
-            i = 0;
-            while (e.hasMoreElements()) {
-                String className = (String) e.nextElement();
-                inputStreamSpis[i++] = (InputStreamSpi) Class.forName(className).newInstance();
-            }
-        } catch (Exception e) {
-            Debug.printStackTrace(e);
-            System.exit(1);
         }
     }
 
@@ -212,11 +119,11 @@ public class JWinZip {
         table.setFont(new Font(rb.getString("panel.jWinZip.font.name"), Font.PLAIN, 12));
         table.addMouseListener(mouseListener);
 
-        setArchive(new File(args[0]));
+        archive = Archives.getArchive(new File(args[0]));
 
         table.setModel(new EntryTableModel(archive));
         for (int i = 0; i < table.getModel().getColumnCount(); i++) {
-            table.getColumn(table.getModel().getColumnName(i)).setHeaderValue(EntryTableModel.columnName[i]);
+            table.getColumn(table.getModel().getColumnName(i)).setHeaderValue(EntryTableModel.columnNames[i]);
             table.getColumn(table.getModel().getColumnName(i)).setPreferredWidth(EntryTableModel.widths[i]);
         }
 
@@ -234,10 +141,8 @@ public class JWinZip {
         init();
     }
 
-    // ----
-
     /**
-     * メニューバーを取得します．
+     * Creates the menu bar．
      */
     public JMenuBar getMenuBar() {
         JMenuBar menuBar = new JMenuBar();
@@ -249,16 +154,19 @@ public class JWinZip {
 
         menuItem = menu.add(extractAction);
         menuItem.setMnemonic(KeyEvent.VK_X);
+        menu.add(menuItem);
         menu.addSeparator();
         menuItem = menu.add(exitAction);
         menuItem.setMnemonic(KeyEvent.VK_C);
+        menu.add(menuItem);
 
         menuBar.add(menu);
 
         // help
         menu = new JMenu(rb.getString("menu.help"));
         menuItem = menu.add(aboutAction);
-        menu.setMnemonic(KeyEvent.VK_A);
+        menuItem.setMnemonic(KeyEvent.VK_A);
+        menu.add(menuItem);
 
         menuBar.add(menu);
 
@@ -266,7 +174,7 @@ public class JWinZip {
     }
 
     /**
-     * ツールバーを取得します．
+     * Creates the tool bar．
      */
     public JToolBar getToolBar() {
         JToolBar toolBar = new JToolBar();
@@ -285,7 +193,7 @@ public class JWinZip {
     }
 
     /**
-     * ポップアップメニューを取得します．
+     * Creates the popup menu.．
      */
     public JPopupMenu getPopupMenu() {
         JPopupMenu popupMenu = new JPopupMenu();
@@ -307,29 +215,29 @@ public class JWinZip {
     }
 
     /**
-     * TODO 重複ファイルチェック
-     * TODO アクションは選択されたファイルのみ
+     * TODO duplication
+     * TODO action only for selected files
      */
     private void extractAll(File dir) throws IOException {
 
         Entry[] entries = archive.entries();
-        Debug.println("dir: " + dir);
-        for (int i = 0; i < entries.length; i++) {
+Debug.println("dir: " + dir);
+        for (Entry entry : entries) {
 
-            File file = new File(dir.getPath(), entries[i].getName());
+            File file = new File(dir.getPath(), entry.getName());
 
-            if (entries[i].isDirectory()) {
+            if (entry.isDirectory()) {
                 if (!file.exists()) {
                     file.mkdirs();
-                    Debug.println("create dir: " + file);
+Debug.println("create dir: " + file);
                 }
             } else {
-                file = new File(dir.getPath(), entries[i].getName());
+                file = new File(dir.getPath(), entry.getName());
                 makeSureParentDirs(file);
 
                 try {
-                    extract(entries[i], file);
-                    System.err.println("Melting " + entries[i].getName() + " to " + file);
+                    extract(entry, file);
+                    System.err.println("Melting " + entry.getName() + " to " + file);
                 } catch (IOException e) {
                     System.err.println("Melting to " + file + " failed.");
                     // e.printStackTrace(System.err);
@@ -348,7 +256,7 @@ public class JWinZip {
         extract(entry, file);
         System.err.println("Temporary " + entry.getName() + " to " + file);
 
-        Runtime.getRuntime().exec("notepad " + file);
+        Runtime.getRuntime().exec(new String[] {"notepad", file.getPath()});
     }
 
     /** */
@@ -360,13 +268,13 @@ public class JWinZip {
     /** */
     private void init() throws IOException {
         Debug.println(APP_PROPS);
-        InputStream is = null;
+        InputStream is;
         try {
             is = new FileInputStream(APP_PROPS);
         } catch (FileNotFoundException e) {
             File file = new File(APP_PROPS);
             file.createNewFile();
-            is = new FileInputStream(file);
+            is = Files.newInputStream(file.toPath());
         }
         appProps.load(is);
         is.close();
@@ -374,7 +282,7 @@ public class JWinZip {
 
     /** */
     private void exit() throws IOException {
-        OutputStream os = new FileOutputStream(APP_PROPS);
+        OutputStream os = Files.newOutputStream(Paths.get(APP_PROPS));
         appProps.store(os, "JWinZip");
         os.close();
     }
@@ -387,7 +295,7 @@ public class JWinZip {
         private JFileChooser fc = new JFileChooser();
 
         void init() {
-            File cwd = null;
+            File cwd;
             if (appProps.getProperty("dir.extract") == null) {
                 cwd = new File(System.getProperty("user.home"));
             } else {
@@ -407,37 +315,37 @@ public class JWinZip {
                 appProps.setProperty("dir.extract", dir.getPath());
                 extractAll(dir);
             } catch (IOException e) {
-                Debug.printStackTrace(e);
+Debug.printStackTrace(e);
             }
         }
     };
 
-    /** */
+    /** "About" action */
     private Action aboutAction = new AbstractAction(rb.getString("action.about")) {
         public void actionPerformed(ActionEvent ev) {
             JOptionPane.showMessageDialog(null, "0.02", rb.getString("action.about"), JOptionPane.INFORMATION_MESSAGE);
         }
     };
 
-    /** */
+    /** "Exit" action */
     private Action exitAction = new AbstractAction(rb.getString("action.exit")) {
         public void actionPerformed(ActionEvent ev) {
             try {
                 exit();
             } catch (IOException e) {
-                Debug.printStackTrace(e);
+Debug.printStackTrace(e);
             }
             System.exit(0);
         }
     };
 
-    /** */
+    /** "View" action */
     private Action viewAction = new AbstractAction(rb.getString("action.view")) {
         public void actionPerformed(ActionEvent ev) {
             try {
                 view();
             } catch (IOException e) {
-                Debug.printStackTrace(e);
+Debug.printStackTrace(e);
             }
         }
     };
@@ -450,7 +358,7 @@ public class JWinZip {
                     int x = ev.getX();
                     int y = ev.getY();
                     popupMenu.show(table, x, y);
-                    Debug.println("row: " + table.getSelectedRow());
+Debug.println("row: " + table.getSelectedRow());
                 }
             }
         }
@@ -458,12 +366,10 @@ public class JWinZip {
 
     // -------------------------------------------------------------------------
 
-    /** プロパティ */
+    /** */
     static Properties props = new Properties();
 
-    /**
-     * 初期化します．
-     */
+    /* */
     static {
         final String path = "/JWinZip.properties";
         final Class<?> clazz = JWinZip.class;

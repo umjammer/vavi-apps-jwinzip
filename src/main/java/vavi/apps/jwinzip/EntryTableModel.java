@@ -30,7 +30,7 @@ import vavi.util.archive.Entry;
 public class EntryTableModel extends AbstractTableModel {
 
     /** カラムの名前 */
-    public static final String columnName[] = {
+    public static final String[] columnNames = {
         "Name", "Type", "Modified", "Size", "Ratio", "Packed", "Path"
     };
 
@@ -49,9 +49,9 @@ public class EntryTableModel extends AbstractTableModel {
     public EntryTableModel(Archive archive) {
         List<Entry> list = new ArrayList<>();
         Entry[] entries = archive.entries();
-        for (int i = 0; i < entries.length; i++) {
-            if (!entries[i].isDirectory()) {
-                list.add(entries[i]);
+        for (Entry entry : entries) {
+            if (!entry.isDirectory()) {
+                list.add(entry);
             }
         }
         this.entries = new Entry[list.size()];
@@ -62,12 +62,12 @@ public class EntryTableModel extends AbstractTableModel {
 
     /** カラム数を取得します． */
     public int getColumnCount() {
-        return columnName.length;
+        return columnNames.length;
     }
 
     /** カラム名を取得します． */
     public String getColumnName(int columnIndex) {
-        return columnName[columnIndex];
+        return columnNames[columnIndex];
     }
 
     /** 行数を取得します． */
@@ -86,13 +86,13 @@ public class EntryTableModel extends AbstractTableModel {
             DateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
             return sdf.format(new Date(entries[rowIndex].getTime()));
         case 3:
-            return new Long(entries[rowIndex].getSize());
+            return entries[rowIndex].getSize();
         case 4:
             long originalSize = entries[rowIndex].getSize();
             long packedSize = entries[rowIndex].getCompressedSize();
-            return new Integer((int) ((float) packedSize / originalSize * 100)) + "%";
+            return (int) ((float) packedSize / originalSize * 100) + "%";
         case 5:
-            return new Long(entries[rowIndex].getCompressedSize());
+            return entries[rowIndex].getCompressedSize();
         case 6:
             return getPath(entries[rowIndex].getName());
         default:
