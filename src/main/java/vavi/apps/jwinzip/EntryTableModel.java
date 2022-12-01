@@ -29,7 +29,7 @@ import vavi.util.archive.Entry;
  */
 public class EntryTableModel extends AbstractTableModel {
 
-    /** カラムの名前 */
+    /** column names */
     public static final String[] columnNames = {
         "Name", "Type", "Modified", "Size", "Ratio", "Packed", "Path"
     };
@@ -45,7 +45,7 @@ public class EntryTableModel extends AbstractTableModel {
     /** model */
     private Entry[] entries;
 
-    /** テーブルモデルを構築します． */
+    /** Creates a table model */
     public EntryTableModel(Archive archive) {
         List<Entry> list = new ArrayList<>();
         Entry[] entries = archive.entries();
@@ -60,22 +60,22 @@ public class EntryTableModel extends AbstractTableModel {
 
     // -------------------------------------------------------------------------
 
-    /** カラム数を取得します． */
+    @Override
     public int getColumnCount() {
         return columnNames.length;
     }
 
-    /** カラム名を取得します． */
+    @Override
     public String getColumnName(int columnIndex) {
         return columnNames[columnIndex];
     }
 
-    /** 行数を取得します． */
+    @Override
     public int getRowCount() {
         return entries.length;
     }
 
-    /** 指定したカラム，行にある値を取得します． */
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
         case 0:

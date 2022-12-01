@@ -22,7 +22,7 @@ import vavi.net.www.MimeTable;
  */
 public class MimeTableModel extends AbstractTableModel {
 
-    /** カラムの名前 */
+    /** column names */
     public static final String[] columnName = {
         "type",
         "image",
@@ -38,29 +38,29 @@ public class MimeTableModel extends AbstractTableModel {
     /** */
     private Map<?, ?> entries;
 
-    /** テーブルモデルを構築します． */
+    /** Creates table model */
     public MimeTableModel(MimeTable mimeTable) {
         entries = mimeTable.entries();
     }
 
     //-------------------------------------------------------------------------
 
-    /** カラム数を取得します． */
+    @Override
     public int getColumnCount() {
         return columnName.length;
     }
 
-    /** カラム名を取得します． */
+    @Override
     public String getColumnName(int columnIndex) {
         return columnName[columnIndex];
     }
 
-    /** 行数を取得します． */
+    @Override
     public int getRowCount() {
         return entries.size();
     }
 
-    /** 指定したカラム，行にある値を取得します． */
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
         case 0: // contentType

@@ -5,7 +5,7 @@
 
 # JWinZip
 
-Provides JWinZip.
+🐣 Incubation for table bindings.
 
 ## References
 
