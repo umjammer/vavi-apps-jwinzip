@@ -7,6 +7,7 @@
 package vavi.apps.jwinzip;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -15,13 +16,15 @@ import java.awt.event.MouseEvent;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.FileTime;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -46,6 +49,8 @@ import javax.swing.UIManager;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.event.MouseInputListener;
 
+import vavi.swing.binding.table.Row;
+import vavi.swing.binding.table.TableModel;
 import vavi.util.Debug;
 import vavi.util.RegexFileFilter;
 import vavi.util.archive.Archive;
@@ -68,8 +73,6 @@ public class JWinZip {
     /** */
     private static final ResourceBundle rb = ResourceBundle.getBundle("JWinZipResources", Locale.getDefault());
 
-    // -------------------------------------------------------------------------
-
     /** */
     private Archive archive;
 
@@ -77,9 +80,9 @@ public class JWinZip {
      * @param entry archive entry
      * @param file file to output
      */
-    private void extract(Entry entry, File file) throws IOException {
+    private void extract(Entry entry, Path file) throws IOException {
         try (InputStream is = new BufferedInputStream(archive.getInputStream(entry));
-             OutputStream os = new BufferedOutputStream(Files.newOutputStream(file.toPath()))) {
+             OutputStream os = new BufferedOutputStream(Files.newOutputStream(file))) {
 
             long size = entry.getSize();
             final int SIZE = 8192;
@@ -93,11 +96,9 @@ public class JWinZip {
                 size -= l;
             }
             os.close();
-            file.setLastModified(entry.getTime());
+            Files.setLastModifiedTime(file, FileTime.fromMillis(entry.getTime()));
         }
     }
-
-    // ----
 
     /** */
     private JTable table;
@@ -105,11 +106,14 @@ public class JWinZip {
     /** */
     private JPopupMenu popupMenu;
 
+    /** */
+    private JFrame frame;
+
     /**
-     * 
+     * GUI
      */
     private JWinZip(String[] args) throws IOException {
-        JFrame frame = new JFrame();
+        frame = new JFrame();
 
         popupMenu = getPopupMenu();
 
@@ -121,10 +125,11 @@ public class JWinZip {
 
         archive = Archives.getArchive(new File(args[0]));
 
-        table.setModel(new EntryTableModel(archive));
-        for (int i = 0; i < table.getModel().getColumnCount(); i++) {
-            table.getColumn(table.getModel().getColumnName(i)).setHeaderValue(EntryTableModel.columnNames[i]);
-            table.getColumn(table.getModel().getColumnName(i)).setPreferredWidth(EntryTableModel.widths[i]);
+        TableModel<Entry> model = new TableModel<>(new ArchiveModel(archive));
+        table.setModel(model);
+        for (int i = 0; i < model.getColumnCount(); i++) {
+            table.getColumn(model.getColumnName(i)).setPreferredWidth(Row.Util.getWidth(ArchiveModel.ArchiveEntryModel.class, i));
+            table.getColumn(model.getColumnName(i)).setWidth(Row.Util.getWidth(ArchiveModel.ArchiveEntryModel.class, i));
         }
 
         JScrollPane sp = new JScrollPane(table);
@@ -133,9 +138,9 @@ public class JWinZip {
         frame.getContentPane().add(getToolBar(), BorderLayout.NORTH);
         frame.getContentPane().add(sp, BorderLayout.CENTER);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(640, 480);
+        frame.setPreferredSize(new Dimension(640, 480));
         frame.setTitle("JWinZip");
-        // frame.pack();
+        frame.pack();
         frame.setVisible(true);
 
         init();
@@ -204,13 +209,13 @@ public class JWinZip {
     }
 
     /** */
-    private void makeSureParentDirs(File file) {
-        File parent = file.getParentFile();
+    private void makeSureParentDirs(Path file) throws IOException {
+        Path parent = file.getParent();
 // Debug.println("file: " + file);
 // Debug.println("parent: " + parent.isDirectory() + ": " + parent.exists() + ": " + parent);
-        if (!parent.exists()) {
-            parent.mkdirs();
-            Debug.println("creadte dir: " + parent);
+        if (!Files.exists(parent)) {
+            Files.createDirectories(parent);
+Debug.println("create dir: " + parent);
         }
     }
 
@@ -218,21 +223,21 @@ public class JWinZip {
      * TODO duplication
      * TODO action only for selected files
      */
-    private void extractAll(File dir) throws IOException {
+    private void extractAll(Path dir) throws IOException {
 
         Entry[] entries = archive.entries();
 Debug.println("dir: " + dir);
         for (Entry entry : entries) {
 
-            File file = new File(dir.getPath(), entry.getName());
+            Path file = dir.resolve(entry.getName());
 
             if (entry.isDirectory()) {
-                if (!file.exists()) {
-                    file.mkdirs();
+                if (!Files.exists(file)) {
+                    Files.createDirectories(file);
 Debug.println("create dir: " + file);
                 }
             } else {
-                file = new File(dir.getPath(), entry.getName());
+                file = dir.resolve(entry.getName());
                 makeSureParentDirs(file);
 
                 try {
@@ -250,13 +255,13 @@ Debug.println("create dir: " + file);
     private void view() throws IOException {
         Entry entry = archive.entries()[table.getSelectedRow()];
 
-        File file = File.createTempFile("JWinZip", "tmp");
+        Path file = Files.createTempFile("JWinZip", "tmp");
         makeSureParentDirs(file);
 
         extract(entry, file);
         System.err.println("Temporary " + entry.getName() + " to " + file);
 
-        Runtime.getRuntime().exec(new String[] {"notepad", file.getPath()});
+        Runtime.getRuntime().exec(new String[] {"notepad", file.toString()});
     }
 
     /** */
@@ -267,14 +272,13 @@ Debug.println("create dir: " + file);
 
     /** */
     private void init() throws IOException {
-        Debug.println(APP_PROPS);
+Debug.println(APP_PROPS);
         InputStream is;
         try {
-            is = new FileInputStream(APP_PROPS);
+            is = Files.newInputStream(Paths.get(APP_PROPS));
         } catch (FileNotFoundException e) {
-            File file = new File(APP_PROPS);
-            file.createNewFile();
-            is = Files.newInputStream(file.toPath());
+            Path file = Paths.get(APP_PROPS);
+            is = Files.newInputStream(file, StandardOpenOption.CREATE_NEW);
         }
         appProps.load(is);
         is.close();
@@ -311,8 +315,8 @@ Debug.println("create dir: " + file);
                 if (fc.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
                     return;
                 }
-                File dir = fc.getSelectedFile();
-                appProps.setProperty("dir.extract", dir.getPath());
+                Path dir = fc.getSelectedFile().toPath();
+                appProps.setProperty("dir.extract", dir.toString());
                 extractAll(dir);
             } catch (IOException e) {
 Debug.printStackTrace(e);
@@ -335,7 +339,7 @@ Debug.printStackTrace(e);
             } catch (IOException e) {
 Debug.printStackTrace(e);
             }
-            System.exit(0);
+            frame.setVisible(false);
         }
     };
 
