@@ -368,8 +368,6 @@ Debug.println("row: " + table.getSelectedRow());
         }
     };
 
-    // -------------------------------------------------------------------------
-
     /** */
     static Properties props = new Properties();
 
@@ -412,8 +410,6 @@ Debug.println("row: " + table.getSelectedRow());
 
     /** */
     private static RegexFileFilter fileFilter;
-
-    // -------------------------------------------------------------------------
 
     /**
      * The program entry point.
