@@ -7,18 +7,23 @@
 
 🐣 Incubation for table bindings.
 
+## Install
+
+* https://github.com/umjammer?tab=packages&repo_name=vavi-apps-jwinzip
+
 ## References
 
  * [connons compress](http://jakarta.apache.org/commons/sandbox/compress/apidocs/index.html)
- * [vavi-util-archive](https://github.com/umjammer/vavi-util-archive)
- * [vavi-util-archive-sandbox](https://github.com/umjammer/vavi-util-archive-sandbox)
+ * [vavi-util-controller](https://github.com/umjammer/vavi-util-controller)
+ * [vavi-util-controller-sandbox](https://github.com/umjammer/vavi-util-controller-sandbox)
 
 ## TODO
 
  * canExtract(InputStream)'s argument InputStream should be an Object? ... see ImageIO
  * getXXXInstance(File) should be no argument?
  * ~~NativeStuffIt almost completed~~
+ * epub editor
 
 ## License
 
- * ~~[JGT](http://www.gjt.org/doc/gpl/)~~
+ * ~~[JGT](http://www.gjt.org/doc/gpl/)~~ removed
