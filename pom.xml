@@ -168,5 +168,12 @@
       <artifactId>junit-platform-commons</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>vavi</groupId>
+      <artifactId>vavi-awt-joystick</artifactId>
+      <version>0.0.4-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>
