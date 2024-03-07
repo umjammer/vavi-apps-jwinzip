@@ -14,7 +14,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import net.java.games.input.usb.HidController;
-import vavi.awt.joystick.hid4java.Hid4JavaEnvironmentPlugin;
+import vavi.games.input.hid4java.spi.Hid4JavaEnvironmentPlugin;
 import vavi.swing.binding.table.TableModel;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
@@ -59,7 +59,6 @@ public class Gamepad {
         frame.getContentPane().add(sp, BorderLayout.CENTER);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setPreferredSize(new Dimension(640, 800));
-        frame.setTitle("Gamepad");
         frame.pack();
         frame.setVisible(true);
     }
@@ -69,8 +68,10 @@ public class Gamepad {
         Hid4JavaEnvironmentPlugin environment = new Hid4JavaEnvironmentPlugin();
         HidController controller = environment.getController(vendorId, productId);
 
+        frame.setTitle("Gamepad " + mid + ":" + pid);
+
         GamepadModel gamepadModel = new GamepadModel(controller);
-        TableModel<GamepadModel.VO> model = new TableModel<>(gamepadModel);
+        TableModel<?> model = new TableModel<>(gamepadModel);
         gamepadModel.setUpdater(model::update);
         model.bind(table);
     }

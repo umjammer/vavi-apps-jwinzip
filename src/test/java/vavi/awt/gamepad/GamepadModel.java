@@ -15,8 +15,7 @@ import java.util.StringJoiner;
 import net.java.games.input.Event;
 import net.java.games.input.WrappedComponent;
 import net.java.games.input.usb.HidController;
-import vavi.hid.parser.Field;
-import vavi.net.www.MimeTable;
+import net.java.games.input.usb.parser.Field;
 import vavi.swing.binding.table.Column;
 import vavi.swing.binding.table.Row;
 import vavi.swing.binding.table.Table;
@@ -30,9 +29,6 @@ import vavi.swing.binding.table.Table;
  */
 @Table(row = GamepadModel.ComponentModel.class, iterable = "entries")
 public class GamepadModel {
-
-    /** */
-    private static final MimeTable mimeTable = new MimeTable();
 
     @Row(setter = "setVO")
     public static class ComponentModel {
