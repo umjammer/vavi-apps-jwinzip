@@ -112,7 +112,7 @@ public class JWinZip {
 
         archive = Archives.getArchive(new File(args[0]));
 
-        TableModel<Entry> model = new TableModel<>(new ArchiveModel(archive));
+        TableModel<?> model = new TableModel<>(new ArchiveModel(archive));
         model.bind(table);
 
         JScrollPane sp = new JScrollPane(table);
