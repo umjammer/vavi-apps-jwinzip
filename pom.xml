@@ -171,8 +171,9 @@
 
     <dependency>
       <groupId>vavi</groupId>
-      <artifactId>vavi-awt-joystick</artifactId>
-      <version>0.0.4-SNAPSHOT</version>
+      <artifactId>vavi-apps-ebook</artifactId>
+      <version>1.1.2v-SNAPSHOT</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- org.hid4java / com.github.umjammer -->
