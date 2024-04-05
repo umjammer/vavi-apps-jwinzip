@@ -9,7 +9,6 @@ package vavi.apps.jwinzip;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -39,20 +38,20 @@ public class ArchiveModel {
         public void setEntry(Entry entry) {
             this.entry = entry;
         }
-        @Column(sequence = 0, width = 150)
+        @Column(sequence = 0, width = 200)
         public String getName() {
             return getFileName(entry.getName());
         }
-        @Column(sequence = 1, width = 80)
+        @Column(sequence = 1, width = 100)
         public String getType() {
             return mimeTable.getContentTypeFor(getFileName(entry.getName()));
         }
-        @Column(sequence = 2, width = 100)
+        @Column(sequence = 2, width = 180)
         public String getModified () {
             DateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
             return sdf.format(new Date(entry.getTime()));
         }
-        @Column(sequence = 3, width = 60)
+        @Column(sequence = 3, width = 80)
         public long getSize() {
             return entry.getSize();
         }
@@ -62,11 +61,11 @@ public class ArchiveModel {
             long packedSize = entry.getCompressedSize();
             return (int) ((float) packedSize / originalSize * 100) + "%";
         }
-        @Column(sequence = 5, width = 60)
+        @Column(sequence = 5, width = 80)
         public long getPacked() {
             return entry.getCompressedSize();
         }
-        @Column(sequence = 6, width = 320)
+        @Column(sequence = 6, width = 200)
         public String getPath() {
             return getFilePath(entry.getName());
         }

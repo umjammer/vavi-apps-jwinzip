@@ -10,17 +10,16 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.NoSuchElementException;
 
-import vavi.apps.jwinzip.ArchiveModel;
-
 
 /**
  * Table.
- *
+ * <ul>
+ *  <li>{@link #iterable()} method's generic type is {@link #row()} class</li>
+ * </ul>
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 2022/11/26 nsano initial version <br>
  */
