@@ -20,8 +20,8 @@
 ## References
 
  * [connons compress](http://jakarta.apache.org/commons/sandbox/compress/apidocs/index.html)
- * [vavi-util-controller](https://github.com/umjammer/vavi-util-controller)
- * [vavi-util-controller-sandbox](https://github.com/umjammer/vavi-util-controller-sandbox)
+ * [vavi-util-archive](https://github.com/umjammer/vavi-util-archive)
+ * [vavi-util-archive-sandbox](https://github.com/umjammer/vavi-util-archive-sandbox)
 
 ## TODO
 

@@ -9,11 +9,18 @@ package vavi.awt.gamepad;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
+import net.java.games.input.Event;
+import net.java.games.input.WrappedComponent;
 import net.java.games.input.usb.HidController;
+import net.java.games.input.usb.parser.Field;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import vavi.awt.gamepad.GamepadModel.VO;
 import vavi.games.input.hid4java.spi.Hid4JavaEnvironmentPlugin;
 import vavi.swing.binding.table.TableModel;
 import vavi.util.properties.annotation.Property;
@@ -83,5 +90,30 @@ public class Gamepad {
         app.vendorId = Integer.decode(app.mid);
         app.productId = Integer.decode(app.pid);
         app.start();
+    }
+
+    @BeforeEach
+    void setup() throws Exception {
+        PropsEntity.Util.bind(this);
+        this.vendorId = Integer.decode(this.mid);
+        this.productId = Integer.decode(this.pid);
+    }
+
+    @Test
+    void test1() throws Exception {
+        Hid4JavaEnvironmentPlugin environment = new Hid4JavaEnvironmentPlugin();
+        HidController controller = environment.getController(vendorId, productId);
+        AtomicBoolean once = new AtomicBoolean();
+        controller.addInputEventListener(e -> {
+            Event event = new Event();
+            while (e.getNextEvent(event)) {
+                Field field = ((WrappedComponent<Field>) event.getComponent()).getWrappedObject();
+                if (!once.get()) {
+                    System.err.println(event.getComponent().getName());
+                }
+            }
+            once.set(true);
+        });
+        controller.open();
     }
 }

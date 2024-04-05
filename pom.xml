@@ -128,7 +128,7 @@
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons</artifactId>
-      <version>1.1.10</version>
+      <version>1.1.12</version>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- vavi / com.github.umjammer -->
@@ -149,7 +149,7 @@
     <dependency>
       <groupId>com.formdev</groupId>
       <artifactId>flatlaf</artifactId>
-      <version>3.3</version>
+      <version>3.4.1</version>
       <scope>runtime</scope>
     </dependency>
 
@@ -178,7 +178,7 @@
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- org.hid4java / com.github.umjammer -->
       <artifactId>hid4java</artifactId>
-      <version>0.14.8v</version>
+      <version>0.14.10v</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
