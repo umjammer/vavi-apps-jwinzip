@@ -7,21 +7,27 @@
 
 🐣 Incubation for table bindings.
 
-### samples
-
- * jwinzip
- * gamepad
- * epub
-
 ## Install
 
 * [maven](https://jitpack.io/#umjammer/vavi-apps-jwinzip)
+
+## Usage
+
+### samples
+
+* jwinzip
+* gamepad
+* epub
 
 ## References
 
  * [connons compress](http://jakarta.apache.org/commons/sandbox/compress/apidocs/index.html)
  * [vavi-util-archive](https://github.com/umjammer/vavi-util-archive)
  * [vavi-util-archive-sandbox](https://github.com/umjammer/vavi-util-archive-sandbox)
+
+### License
+
+* ~~[JGT](http://www.gjt.org/doc/gpl/)~~ removed
 
 ## TODO
 
@@ -30,7 +36,3 @@
  * ~~NativeStuffIt almost completed~~
  * ~~epub editor~~
  * backport bindings into vavi-awt
-
-## License
-
- * ~~[JGT](http://www.gjt.org/doc/gpl/)~~ removed

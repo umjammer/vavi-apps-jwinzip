@@ -72,6 +72,13 @@ public class GamepadModel {
             this.value = value;
         }
 
+        public void set(String name, int min, int max, float value) {
+            this.name = name;
+            this.min = min;
+            this.max = max;
+            this.value = value;
+        }
+
         @Override public String toString() {
             return new StringJoiner(", ", VO.class.getSimpleName() + "[", "]")
                     .add("name='" + name + "'")
@@ -93,11 +100,18 @@ public class GamepadModel {
     public void setUpdater(Runnable repaint) throws IOException {
         controller.addInputEventListener(e -> {
             Event event = new Event();
-            vos.clear();
-            while (e.getNextEvent(event)) {
-                Field field = ((WrappedComponent<Field>) event.getComponent()).getWrappedObject();
-                VO vo = new VO(event.getComponent().getName(), field.getLogicalMinimum(), field.getLogicalMaximum(), event.getValue());
-                vos.add(vo);
+            if (vos.isEmpty()) {
+                while (e.getNextEvent(event)) {
+                    Field field = ((WrappedComponent<Field>) event.getComponent()).getWrappedObject();
+                    VO vo = new VO(event.getComponent().getName(), field.getLogicalMinimum(), field.getLogicalMaximum(), event.getValue());
+                    vos.add(vo);
+                }
+            } else {
+                int i = 0;
+                while (e.getNextEvent(event)) {
+                    Field field = ((WrappedComponent<Field>) event.getComponent()).getWrappedObject();
+                    vos.get(i++).set(event.getComponent().getName(), field.getLogicalMinimum(), field.getLogicalMaximum(), event.getValue());
+                }
             }
             repaint.run();
         });
@@ -107,16 +121,5 @@ public class GamepadModel {
     /** @see Table#iterable() */
     public Iterable<VO> entries() {
         return vos;
-    }
-
-    /** */
-    private static String getFileName(String path) {
-        return new File(path).getName();
-    }
-
-    /** */
-    private static String getFilePath(String path) {
-        path = new File(path).getParent();
-        return path == null ? "" : path + File.separator;
     }
 }
