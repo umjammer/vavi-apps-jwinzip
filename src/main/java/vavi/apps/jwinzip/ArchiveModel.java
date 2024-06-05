@@ -72,7 +72,7 @@ public class ArchiveModel {
     }
 
     /** */
-    private Archive archive;
+    private final Archive archive;
 
     /** */
     public ArchiveModel(Archive archive) {

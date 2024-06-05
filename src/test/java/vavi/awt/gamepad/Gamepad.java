@@ -20,7 +20,7 @@ import net.java.games.input.usb.HidController;
 import net.java.games.input.usb.parser.Field;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import vavi.awt.gamepad.GamepadModel.VO;
+
 import vavi.games.input.hid4java.spi.Hid4JavaEnvironmentPlugin;
 import vavi.swing.binding.table.TableModel;
 import vavi.util.properties.annotation.Property;
