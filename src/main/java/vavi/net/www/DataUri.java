@@ -74,7 +74,6 @@ public class DataUri {
         }
     }
 
-
     public String getMime() {
         return mime;
     }
@@ -123,7 +122,7 @@ public class DataUri {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final DataUri other = (DataUri) obj;
+        DataUri other = (DataUri) obj;
         if (!Objects.equals(this.mime, other.mime)) {
             return false;
         } else if (!Objects.equals(this.charset, other.charset)) {
@@ -182,7 +181,7 @@ public class DataUri {
         // supported value and the second string in each pair represents
         // an empty string or default string value. (Example: {"charset"
         // : "", "filename" : "", "content-disposition" : ""})
-        final Map<String, String> supportedValues = new HashMap<>() {{
+        Map<String, String> supportedValues = new HashMap<>() {{
             put(CHARSET_OPTION_NAME, "");
             put(FILENAME_OPTION_NAME, "");
             put(CONTENT_DISPOSITION_OPTION_NAME, "");
@@ -191,7 +190,7 @@ public class DataUri {
         // Let supportedValueSetBits be a map of string:bool pairs
         // representing each of the names in supportedValues with each
         // name set to false.
-        final Map<String, Boolean> supportedValueSetBits = new HashMap<>() {{
+        Map<String, Boolean> supportedValueSetBits = new HashMap<>() {{
             for (String key : supportedValues.keySet()) {
                 put(key, false);
             }
@@ -282,7 +281,7 @@ public class DataUri {
 
                     // If name is found case-insensitively
                     // in supportedContentEncodings:
-                    final String nameCaseInsensitive = name.toLowerCase();
+                    String nameCaseInsensitive = name.toLowerCase();
 
                     if (supportedContentEncodings.contains(nameCaseInsensitive)) {
 
@@ -304,7 +303,7 @@ public class DataUri {
                     // If the length of value is greater
                     // than 0 and name is found case-
                     // insensitively in supportedValues:
-                    final String nameCaseInsensitive = name.toLowerCase();
+                    String nameCaseInsensitive = name.toLowerCase();
 
                     if (!value.isEmpty() && supportedValues.containsKey(nameCaseInsensitive)) {
 
@@ -334,7 +333,6 @@ public class DataUri {
                     }
                 }
             }
-
         }
 
         // Let data be the substring of URI from position comma + 1 to

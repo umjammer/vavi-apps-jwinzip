@@ -21,7 +21,7 @@
 
 ## References
 
- * [connons compress](http://jakarta.apache.org/commons/sandbox/compress/apidocs/index.html)
+ * [commons compress](http://jakarta.apache.org/commons/sandbox/compress/apidocs/index.html)
  * [vavi-util-archive](https://github.com/umjammer/vavi-util-archive)
  * [vavi-util-archive-sandbox](https://github.com/umjammer/vavi-util-archive-sandbox)
 
@@ -36,3 +36,4 @@
  * ~~NativeStuffIt almost completed~~
  * ~~epub editor~~
  * backport bindings into vavi-awt
+ * backport net.www into vavi-commons

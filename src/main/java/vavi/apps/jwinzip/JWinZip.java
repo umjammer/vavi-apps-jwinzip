@@ -15,17 +15,16 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileTime;
 import java.util.Locale;
-import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import javax.swing.AbstractAction;
@@ -50,11 +49,12 @@ import javax.swing.event.MouseInputAdapter;
 import javax.swing.event.MouseInputListener;
 
 import vavi.swing.binding.table.TableModel;
-import vavi.util.Debug;
 import vavi.util.RegexFileFilter;
 import vavi.util.archive.Archive;
 import vavi.util.archive.Archives;
 import vavi.util.archive.Entry;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -69,11 +69,13 @@ import vavi.util.archive.Entry;
  */
 public class JWinZip {
 
+    private static final Logger logger = getLogger(JWinZip.class.getName());
+
     /** */
     private static final ResourceBundle rb = ResourceBundle.getBundle("JWinZipResources", Locale.getDefault());
 
     /** */
-    private Archive archive;
+    private final Archive archive;
 
     /**
      * @param entry archive entry
@@ -171,8 +173,8 @@ public class JWinZip {
         JButton button;
 
         button = toolBar.add(extractAction);
-        // button.setBorderPainted(false);
-        // button.setFocusPainted(true);
+//        button.setBorderPainted(false);
+//        button.setFocusPainted(true);
         button.setToolTipText(button.getText());
 
         ToolTipManager.sharedInstance().registerComponent(toolBar);
@@ -194,11 +196,11 @@ public class JWinZip {
     /** */
     private static void makeSureParentDirs(Path file) throws IOException {
         Path parent = file.getParent();
-// Debug.println("file: " + file);
-// Debug.println("parent: " + parent.isDirectory() + ": " + parent.exists() + ": " + parent);
+//logger.log(Level.TRACE"file: " + file);
+//logger.log(Level.TRACE"parent: " + parent.isDirectory() + ": " + parent.exists() + ": " + parent);
         if (!Files.exists(parent)) {
             Files.createDirectories(parent);
-Debug.println("create dir: " + parent);
+logger.log(Level.DEBUG, "create dir: " + parent);
         }
     }
 
@@ -209,7 +211,7 @@ Debug.println("create dir: " + parent);
     private void extractAll(Path dir) throws IOException {
 
         Entry[] entries = archive.entries();
-Debug.println("dir: " + dir);
+logger.log(Level.DEBUG, "dir: " + dir);
         for (Entry entry : entries) {
 
             Path file = dir.resolve(entry.getName());
@@ -217,7 +219,7 @@ Debug.println("dir: " + dir);
             if (entry.isDirectory()) {
                 if (!Files.exists(file)) {
                     Files.createDirectories(file);
-Debug.println("create dir: " + file);
+logger.log(Level.DEBUG, "create dir: " + file);
                 }
             } else {
                 file = dir.resolve(entry.getName());
@@ -248,14 +250,14 @@ Debug.println("create dir: " + file);
     }
 
     /** */
-    Properties appProps = new Properties();
+    final Properties appProps = new Properties();
 
     /** */
     private static final Path APP_PROPS = Path.of(System.getProperty("user.home"), ".config", "jwinzip", "config");
 
     /** */
     private void init() throws IOException {
-Debug.println(APP_PROPS);
+logger.log(Level.DEBUG, APP_PROPS);
         InputStream is;
         try {
             is = Files.newInputStream(APP_PROPS);
@@ -280,9 +282,9 @@ Debug.println(APP_PROPS);
     // ----
 
     /** */
-    private Action extractAction = new AbstractAction(rb.getString("action.extract"),
+    private final Action extractAction = new AbstractAction(rb.getString("action.extract"),
                                                       (ImageIcon) UIManager.get("jWinZip.extractIcon")) {
-        private JFileChooser fc = new JFileChooser();
+        private final JFileChooser fc = new JFileChooser();
 
         void init() {
             File cwd;
@@ -295,7 +297,7 @@ Debug.println(APP_PROPS);
             fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         }
 
-        public void actionPerformed(ActionEvent ev) {
+        @Override public void actionPerformed(ActionEvent ev) {
             try {
                 init();
                 if (fc.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
@@ -305,57 +307,57 @@ Debug.println(APP_PROPS);
                 appProps.setProperty("dir.extract", dir.toString());
                 extractAll(dir);
             } catch (IOException e) {
-Debug.printStackTrace(e);
+logger.log(Level.ERROR, e.getMessage(), e);
             }
         }
     };
 
     /** "About" action */
-    private Action aboutAction = new AbstractAction(rb.getString("action.about")) {
-        public void actionPerformed(ActionEvent ev) {
+    private final Action aboutAction = new AbstractAction(rb.getString("action.about")) {
+        @Override public void actionPerformed(ActionEvent ev) {
             JOptionPane.showMessageDialog(null, "0.02", rb.getString("action.about"), JOptionPane.INFORMATION_MESSAGE);
         }
     };
 
     /** "Exit" action */
-    private Action exitAction = new AbstractAction(rb.getString("action.exit")) {
-        public void actionPerformed(ActionEvent ev) {
+    private final Action exitAction = new AbstractAction(rb.getString("action.exit")) {
+        @Override public void actionPerformed(ActionEvent ev) {
             try {
                 exit();
             } catch (IOException e) {
-Debug.printStackTrace(e);
+logger.log(Level.ERROR, e.getMessage(), e);
             }
             frame.setVisible(false);
         }
     };
 
     /** "View" action */
-    private Action viewAction = new AbstractAction(rb.getString("action.view")) {
-        public void actionPerformed(ActionEvent ev) {
+    private final Action viewAction = new AbstractAction(rb.getString("action.view")) {
+        @Override public void actionPerformed(ActionEvent ev) {
             try {
                 view();
             } catch (IOException e) {
-Debug.printStackTrace(e);
+logger.log(Level.ERROR, e.getMessage(), e);
             }
         }
     };
 
     /** */
-    private MouseInputListener mouseListener = new MouseInputAdapter() {
-        public void mouseClicked(MouseEvent ev) {
+    private final MouseInputListener mouseListener = new MouseInputAdapter() {
+        @Override public void mouseClicked(MouseEvent ev) {
             if (SwingUtilities.isRightMouseButton(ev)) {
                 if (table.getSelectedRow() != -1) {
                     int x = ev.getX();
                     int y = ev.getY();
                     popupMenu.show(table, x, y);
-Debug.println("row: " + table.getSelectedRow());
+logger.log(Level.DEBUG, "row: " + table.getSelectedRow());
                 }
             }
         }
     };
 
     /** */
-    static Properties props = new Properties();
+    static final Properties props = new Properties();
 
     /* */
     static {
@@ -375,7 +377,7 @@ Debug.println("row: " + table.getSelectedRow());
                 String key = "jWinZip.action." + i + ".iconName";
                 String name = props.getProperty(key);
                 if (name == null) {
-                    Debug.println("no property for: jWinZip.action." + i + ".iconName");
+                    logger.log(Level.DEBUG, "no property for: jWinZip.action." + i + ".iconName");
                     break;
                 }
 
@@ -389,7 +391,7 @@ Debug.println("row: " + table.getSelectedRow());
 
             fileFilter = new RegexFileFilter();
         } catch (Exception e) {
-            Debug.printStackTrace(e);
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
         }
     }
@@ -404,5 +406,3 @@ Debug.println("row: " + table.getSelectedRow());
         new JWinZip(args);
     }
 }
-
-/* */

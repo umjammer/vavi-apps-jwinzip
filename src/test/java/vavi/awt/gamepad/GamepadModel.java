@@ -6,7 +6,6 @@
 
 package vavi.awt.gamepad;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +54,7 @@ public class GamepadModel {
     }
 
     /** */
-    private HidController controller;
+    private final HidController controller;
 
     // TODO mostly same as ComponentModel, it's possible to integrate?
     static class VO {
@@ -89,7 +88,7 @@ public class GamepadModel {
         }
     }
 
-    private List<VO> vos = new ArrayList<>();
+    private final List<VO> vos = new ArrayList<>();
 
     /** */
     public GamepadModel(HidController controller) {

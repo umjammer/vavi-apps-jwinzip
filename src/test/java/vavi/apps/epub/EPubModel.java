@@ -36,7 +36,7 @@ import vavi.util.Debug;
 public class EPubModel {
 
     /** empty image */
-    static BufferedImage noImage;
+    static final BufferedImage noImage;
 
     static {
         try {

@@ -28,13 +28,6 @@ import vavi.util.Debug;
  */
 public class EPub {
 
-    static {
-        System.setProperty("vavi.util.logging.VaviFormatter.extraClassMethod", "(" +
-                "sun\\.util\\.logging\\.internal\\.LoggingProviderImpl\\$JULWrapper#log" + "|" +
-                "sun\\.util\\.logging\\.PlatformLogger#\\w+" +
-                ")");
-    }
-
     JFrame frame;
     JTable table;
 
