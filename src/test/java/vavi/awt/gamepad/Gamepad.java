@@ -39,6 +39,7 @@ public class Gamepad {
     static {
         // for fixing table rows count
         System.setProperty("net.java.games.input.InputEvent.fillAll", "true");
+//        System.setProperty("vavi.games.input.hid4java.darwinOpenDevicesNonExclusive", "true");
     }
 
     @Property(name = "mid")

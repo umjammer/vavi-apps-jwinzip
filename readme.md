@@ -35,5 +35,5 @@
  * getXXXInstance(File) should be no argument?
  * ~~NativeStuffIt almost completed~~
  * ~~epub editor~~
- * backport bindings into vavi-awt
- * backport net.www into vavi-commons
+ * ~~backport bindings into vavi-awt~~
+ * ~~backport net.www into vavi-commons~~
